@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">Jenkins</string>
+    <string name="setup">Jenkins setup</string>
+    <string name="logo_desc">Jenkins logo</string>
+    <string name="setup_desc">Please enter the details of your jenkins setup. You can include port in url field.</string>
+    <string name="url_ex">Ex:- http://jenkins.example.com:8080</string>
+    <string name="name">Name</string>
+    <string name="url">URL</string>
+    <string name="proceed">Proceed</string>
+    <string name="error_empty">Fields are empty</string>
+    <string name="error_invalid_url">Invalid url</string>
+    <string name="invalid_jenkins_instance">This is not a jenkins instance</string>
+    <string name="jenkins_version_desc">An instance of Jenkins version %s found.</string>
+    <string name="auth_desc">Please enter your jenkins credentials.</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="start">Get started</string>
+    <string name="skip_auth">Skip authentication</string>
+    <string name="invalid_credentials">Invalid credentials</string>
+    <string name="anonymous">Anonymous</string>
+
 </resources>
