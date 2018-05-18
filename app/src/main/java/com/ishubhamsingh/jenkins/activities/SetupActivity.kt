@@ -18,7 +18,6 @@ class SetupActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setup)
-        title = getString(R.string.setup)
         CalligraphyConfig.initDefault(CalligraphyConfig.Builder()
                 .setDefaultFontPath("fonts/Rubik-Regular.ttf")
                 .setFontAttrId(R.attr.fontPath)

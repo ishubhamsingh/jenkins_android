@@ -12,6 +12,7 @@ import com.ishubhamsingh.jenkins.models.Home
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_setup.*
 import kotlinx.android.synthetic.main.fragment_instance_setup.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
@@ -39,6 +40,9 @@ class InstanceSetupFragment : Fragment(), AnkoLogger {
 
         mCompositeDisposable = CompositeDisposable()
 
+        activity.tv_title.text = getString(R.string.setup)
+        activity.tv_desc.text = getString(R.string.setup_desc)
+
         bt_proceed.setOnClickListener {
 
             hideError()
@@ -50,8 +54,7 @@ class InstanceSetupFragment : Fragment(), AnkoLogger {
 
     private fun setupProceed(name:String, url:String){
 
-        progress_bar.progressiveStart()
-        progress_bar.visibility=View.VISIBLE
+        progress_bar.smoothToShow()
 
 
         if(!name.isEmpty() && !url.isEmpty()){
@@ -72,16 +75,14 @@ class InstanceSetupFragment : Fragment(), AnkoLogger {
             } else {
 
                 showError(getString(R.string.error_invalid_url))
-                progress_bar.progressiveStop()
-                progress_bar.visibility=View.GONE
+                progress_bar.smoothToHide()
 
             }
 
         } else {
 
             showError(getString(R.string.error_empty))
-            progress_bar.progressiveStop()
-            progress_bar.visibility=View.GONE
+            progress_bar.smoothToHide()
 
         }
 
@@ -97,8 +98,7 @@ class InstanceSetupFragment : Fragment(), AnkoLogger {
 
         } else {
             showError(getString(R.string.invalid_jenkins_instance))
-            progress_bar.progressiveStop()
-            progress_bar.visibility=View.GONE
+            progress_bar.smoothToHide()
         }
 
     }
@@ -106,8 +106,7 @@ class InstanceSetupFragment : Fragment(), AnkoLogger {
     private fun handleError(error:Throwable) {
 
         showError(getString(R.string.error_invalid_url))
-        progress_bar.progressiveStop()
-        progress_bar.visibility=View.GONE
+        progress_bar.smoothToHide()
 
     }
 
@@ -119,8 +118,7 @@ class InstanceSetupFragment : Fragment(), AnkoLogger {
         bundle.putString(Constants.KEY_NAME,name)
         bundle.putString(Constants.KEY_URL,url)
 
-        progress_bar.progressiveStop()
-        progress_bar.visibility=View.GONE
+        progress_bar.smoothToHide()
 
         val fragment: Fragment = AuthenticationFragment()
         fragment.arguments = bundle
@@ -133,13 +131,13 @@ class InstanceSetupFragment : Fragment(), AnkoLogger {
     private fun showError(errorMsg:String) {
 
         tv_error.text=errorMsg
-        view_error.visibility = View.VISIBLE
+        tv_error.visibility = View.VISIBLE
 
     }
 
     private fun hideError() {
         tv_error.text=""
-        view_error.visibility = View.GONE
+        tv_error.visibility = View.GONE
     }
 
     override fun onDestroy() {

@@ -22,6 +22,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.SetupActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             />
         <activity android:name=".activities.DashboardActivity"/>
     </application>

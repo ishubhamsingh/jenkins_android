@@ -16,6 +16,7 @@ import com.ishubhamsingh.jenkins.models.Home
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_setup.*
 import kotlinx.android.synthetic.main.fragment_authentication.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
@@ -51,7 +52,7 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
         prefJenkins=activity.getSharedPreferences(Constants.PREFS_JENKINS_DETAILS,Context.MODE_PRIVATE)
         bundle = this.arguments
 
-        tv_heading_auth.text= getString(R.string.jenkins_version_desc,bundle.getString(Constants.KEY_JENKINS_VERSION)) + "\n" + getString(R.string.auth_desc)
+        activity.tv_desc.text = getString(R.string.jenkins_version_desc,bundle.getString(Constants.KEY_JENKINS_VERSION)) + "\n" + getString(R.string.auth_desc)
 
         if(bundle.getInt(Constants.KEY_CODE) == Constants.TWO_ZERO_ZERO) { // Authentication optional
             cb_skip_auth.visibility = View.VISIBLE
@@ -64,8 +65,7 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
 
             hideError()
 
-            auth_progress_bar.progressiveStart()
-            auth_progress_bar.visibility = View.VISIBLE
+            auth_progress_bar.smoothToShow()
 
             if (cb_skip_auth.isChecked) {
 
@@ -82,8 +82,7 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
                 } else {
 
                     showError(getString(R.string.error_empty))
-                    auth_progress_bar.progressiveStop()
-                    auth_progress_bar.visibility = View.GONE
+                    auth_progress_bar.smoothToHide()
 
                 }
             }
@@ -117,8 +116,8 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
         } else if (code == Constants.FOUR_ZERO_ONE) {
 
             showError(getString(R.string.invalid_credentials))
-            auth_progress_bar.progressiveStop()
-            auth_progress_bar.visibility = View.GONE
+            auth_progress_bar.smoothToHide()
+
         }
 
 
@@ -127,8 +126,7 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
     private fun handleError(error:Throwable) {
 
         info(error.localizedMessage)
-        auth_progress_bar.progressiveStop()
-        auth_progress_bar.visibility = View.GONE
+        auth_progress_bar.smoothToHide()
 
     }
 
@@ -158,8 +156,7 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
                     .apply()
         }
 
-        auth_progress_bar.progressiveStop()
-        auth_progress_bar.visibility = View.GONE
+        auth_progress_bar.smoothToHide()
 
         startActivity<DashboardActivity>()
         activity.finish()
@@ -169,13 +166,13 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
     private fun showError(errorMsg:String) {
 
         tv_auth_error.text=errorMsg
-        view_auth_error.visibility = View.VISIBLE
+        tv_auth_error.visibility = View.VISIBLE
 
     }
 
     private fun hideError() {
         tv_auth_error.text=""
-        view_auth_error.visibility = View.GONE
+        tv_auth_error.visibility = View.GONE
     }
 
     private fun getAuthToken(): String {

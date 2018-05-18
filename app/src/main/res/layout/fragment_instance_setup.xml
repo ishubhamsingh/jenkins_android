@@ -1,27 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".activities.SetupActivity">
 
     <LinearLayout
         android:id="@+id/layout_form"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginEnd="48dp"
         android:layout_marginStart="48dp"
         android:orientation="vertical">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="@string/setup_desc"
-            android:textSize="18sp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -36,6 +29,9 @@
             android:inputType="text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_person_black_24dp"
+            android:drawableTint="@color/secondaryColor"
+            android:drawablePadding="8dp"
             />
 
         <TextView
@@ -51,59 +47,50 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textUri"
+            android:drawableStart="@drawable/ic_public_black_24dp"
+            android:drawableTint="@color/secondaryColor"
+            android:drawablePadding="8dp"
             />
 
-        <LinearLayout
-            android:id="@+id/view_error"
+        <TextView
+            android:id="@+id/tv_error"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
+            android:drawableStart="@drawable/ic_error"
+            android:drawableTint="@color/secondaryColor"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
             android:visibility="gone"
             android:layout_marginTop="32dp"
             android:paddingStart="5dp"
-            android:paddingEnd="5dp">
-
-            <ImageView
-                android:layout_width="18sp"
-                android:layout_height="18sp"
-                android:src="@drawable/ic_error"
-                android:tint="@color/secondaryColor"/>
-
-            <TextView
-                android:id="@+id/tv_error"
-                android:layout_marginStart="5dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/secondaryColor"
-                />
-
-        </LinearLayout>
+            android:paddingEnd="5dp"
+            android:textColor="@color/secondaryColor"
+            />
 
 
     </LinearLayout>
 
-    <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/progress_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:layout_above="@id/bt_proceed"
-        android:layout_marginBottom="2dp"
-        app:spb_color="@color/secondaryColor"
-        android:visibility="gone"
-        app:spb_progressiveStart_activated="true"
-        />
-
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/bt_proceed"
-        android:layout_width="match_parent"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:background="@color/primaryColor"
+        android:background="@drawable/button_background"
+        android:layout_centerHorizontal="true"
         android:text="@string/proceed"
+        android:layout_marginTop="96dp"
         android:textColor="@color/secondaryColor"
-        android:layout_alignParentBottom="true"/>
+        android:layout_below="@+id/layout_form"/>
+
+    <com.wang.avi.AVLoadingIndicatorView
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="24dp"
+        android:layout_below="@id/bt_proceed"
+        android:visibility="gone"
+        app:indicatorName="BallPulseSyncIndicator"
+        app:indicatorColor="@color/secondaryColor"
+        />
 
 </RelativeLayout>
