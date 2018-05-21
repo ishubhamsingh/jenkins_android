@@ -133,13 +133,13 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
     private fun gotoDashboard(isAuthorised:Boolean) {
 
         prefJenkins.edit()
+                .putString(Constants.KEY_NAME, bundle.getString(Constants.KEY_NAME))
                 .putString(Constants.KEY_URL,bundle.getString(Constants.KEY_URL))
                 .putString(Constants.KEY_JENKINS_VERSION,bundle.getString(Constants.KEY_JENKINS_VERSION))
                 .apply()
 
         if (isAuthorised) {
             prefAccount.edit()
-                    .putString(Constants.KEY_NAME, bundle.getString(Constants.KEY_NAME))
                     .putString(Constants.KEY_USERNAME, et_username.text.toString())
                     .putString(Constants.KEY_AUTH_KEY, getAuthToken())
                     .putBoolean(Constants.KEY_IS_AUTHORISED, true)
@@ -148,7 +148,6 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
         } else {
 
             prefAccount.edit()
-                    .putString(Constants.KEY_NAME, bundle.getString(Constants.KEY_NAME))
                     .putString(Constants.KEY_USERNAME, getString(R.string.anonymous))
                     .putString(Constants.KEY_AUTH_KEY, null)
                     .putBoolean(Constants.KEY_IS_AUTHORISED, false)

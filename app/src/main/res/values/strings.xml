@@ -18,5 +18,15 @@
     <string name="skip_auth">Skip authentication</string>
     <string name="invalid_credentials">Invalid credentials</string>
     <string name="anonymous">Anonymous</string>
+    <string name="hi">Hi, %s</string>
+    <string name="welcome">welcome to %s instance</string>
+    <string name="jobs">Jobs</string>
+    <string name="views">Views</string>
+    <string name="queue">Queue</string>
+    <string name="nodes">Nodes</string>
+    <string name="stats">Stats</string>
+    <string name="create">Create</string>
+    <string name="restart">Restart</string>
+    <string name="logout">Logout</string>
 
 </resources>

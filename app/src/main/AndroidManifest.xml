@@ -24,7 +24,9 @@
         <activity android:name=".activities.SetupActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             />
-        <activity android:name=".activities.DashboardActivity"/>
+        <activity android:name=".activities.DashboardActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            />
     </application>
 
 </manifest>
