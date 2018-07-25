@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -15,7 +16,7 @@
             android:layout_height="fill_parent"
             android:scaleType="centerCrop"
              />
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             android:layout_width="fill_parent"
@@ -28,7 +29,7 @@
              />
     </RelativeLayout>
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/info_card"
         android:clipToPadding="false"
         android:layout_width="match_parent"
@@ -81,9 +82,9 @@
                 />
 
         </LinearLayout>
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/nested_scroll_view"
         android:scrollbars="none"
         android:layout_width="fill_parent"
@@ -98,7 +99,7 @@
             <View
                 android:layout_width="0.0dp"
                 android:layout_height="35.0dp" />
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:visibility="visible"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -127,7 +128,7 @@
                             android:layout_width="0.0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1.0">
-                            <android.support.design.widget.FloatingActionButton
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
                                 android:id="@+id/fab_jobs"
                                 android:clickable="true"
                                 android:focusable="true"
@@ -154,7 +155,7 @@
                             android:layout_width="0.0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1.0">
-                            <android.support.design.widget.FloatingActionButton
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
                                 android:id="@+id/fab_views"
                                 android:clickable="true"
                                 android:focusable="true"
@@ -181,7 +182,7 @@
                             android:layout_width="0.0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1.0">
-                            <android.support.design.widget.FloatingActionButton
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
                                 android:id="@+id/fab_queue"
                                 android:clickable="true"
                                 android:focusable="true"
@@ -208,7 +209,7 @@
                             android:layout_width="0.0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1.0">
-                            <android.support.design.widget.FloatingActionButton
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
                                 android:id="@+id/fab_nodes"
                                 android:clickable="true"
                                 android:focusable="true"
@@ -244,7 +245,7 @@
                             android:layout_width="0.0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1.0">
-                            <android.support.design.widget.FloatingActionButton
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
                                 android:id="@+id/fab_stats"
                                 android:clickable="true"
                                 android:focusable="true"
@@ -271,7 +272,7 @@
                             android:layout_width="0.0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1.0">
-                            <android.support.design.widget.FloatingActionButton
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
                                 android:id="@+id/fab_create"
                                 android:clickable="true"
                                 android:focusable="true"
@@ -298,7 +299,7 @@
                             android:layout_width="0.0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1.0">
-                            <android.support.design.widget.FloatingActionButton
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
                                 android:id="@+id/fab_restart"
                                 android:clickable="true"
                                 android:focusable="true"
@@ -325,7 +326,7 @@
                             android:layout_width="0.0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1.0">
-                            <android.support.design.widget.FloatingActionButton
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
                                 android:id="@+id/fab_logout"
                                 android:clickable="true"
                                 android:focusable="true"
@@ -351,9 +352,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="25dp" />
                 </LinearLayout>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 
     <!--<android.support.v7.widget.CardView-->

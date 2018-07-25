@@ -3,7 +3,6 @@ package com.ishubhamsingh.jenkins.activities
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.support.v4.app.FragmentActivity
 import com.ishubhamsingh.jenkins.Constants
 import com.ishubhamsingh.jenkins.R
 import org.jetbrains.anko.AnkoLogger
@@ -14,7 +13,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper
 
 
 
-class SplashActivity : FragmentActivity(), AnkoLogger {
+class SplashActivity : androidx.fragment.app.FragmentActivity(), AnkoLogger {
 
     private lateinit var pref: SharedPreferences
 

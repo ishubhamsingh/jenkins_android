@@ -70,7 +70,7 @@
 
     </LinearLayout>
 
-    <android.support.v7.widget.AppCompatButton
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/bt_proceed"
         android:layout_width="150dp"
         android:layout_height="wrap_content"

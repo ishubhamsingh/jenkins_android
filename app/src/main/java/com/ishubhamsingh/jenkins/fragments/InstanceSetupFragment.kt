@@ -1,10 +1,10 @@
 package com.ishubhamsingh.jenkins.fragments
 
-import android.app.Fragment
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.ishubhamsingh.jenkins.Constants
 import com.ishubhamsingh.jenkins.R
 import com.ishubhamsingh.jenkins.interfaces.RequestInterface
@@ -29,19 +29,19 @@ class InstanceSetupFragment : Fragment(), AnkoLogger {
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_instance_setup, container, false)
 
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         mCompositeDisposable = CompositeDisposable()
 
-        activity.tv_title.text = getString(R.string.setup)
-        activity.tv_desc.text = getString(R.string.setup_desc)
+        activity!!.tv_title.text = getString(R.string.setup)
+        activity!!.tv_desc.text = getString(R.string.setup_desc)
 
         bt_proceed.setOnClickListener {
 
@@ -122,7 +122,7 @@ class InstanceSetupFragment : Fragment(), AnkoLogger {
 
         val fragment: Fragment = AuthenticationFragment()
         fragment.arguments = bundle
-        val ft = fragmentManager.beginTransaction()
+        val ft = fragmentManager!!.beginTransaction()
         ft.replace(R.id.fragment_frame, fragment)
         ft.commit()
 

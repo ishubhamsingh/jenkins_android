@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.ishubhamsingh.jenkins.Constants
 import com.ishubhamsingh.jenkins.R
 import io.reactivex.disposables.CompositeDisposable
@@ -63,6 +63,8 @@ class DashboardActivity: AppCompatActivity() ,AnkoLogger{
     private fun setButtons(){
 
         fab_jobs.setOnClickListener {
+
+            startActivity<JobsListActivity>()
 
         }
 

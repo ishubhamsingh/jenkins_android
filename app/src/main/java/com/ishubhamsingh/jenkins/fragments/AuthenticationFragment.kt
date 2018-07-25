@@ -1,6 +1,5 @@
 package com.ishubhamsingh.jenkins.fragments
 
-import android.app.Fragment
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -8,6 +7,7 @@ import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.ishubhamsingh.jenkins.Constants
 import com.ishubhamsingh.jenkins.R
 import com.ishubhamsingh.jenkins.activities.DashboardActivity
@@ -38,21 +38,21 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
     private lateinit var password: String
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_authentication, container, false)
 
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         mCompositeDisposable = CompositeDisposable()
-        prefAccount=activity.getSharedPreferences(Constants.PREFS_ACCOUNT, Context.MODE_PRIVATE)
-        prefJenkins=activity.getSharedPreferences(Constants.PREFS_JENKINS_DETAILS,Context.MODE_PRIVATE)
-        bundle = this.arguments
+        prefAccount=activity!!.getSharedPreferences(Constants.PREFS_ACCOUNT, Context.MODE_PRIVATE)
+        prefJenkins=activity!!.getSharedPreferences(Constants.PREFS_JENKINS_DETAILS,Context.MODE_PRIVATE)
+        bundle = this.arguments!!
 
-        activity.tv_desc.text = getString(R.string.jenkins_version_desc,bundle.getString(Constants.KEY_JENKINS_VERSION)) + "\n" + getString(R.string.auth_desc)
+        activity!!.tv_desc.text = getString(R.string.jenkins_version_desc,bundle.getString(Constants.KEY_JENKINS_VERSION)) + "\n" + getString(R.string.auth_desc)
 
         if(bundle.getInt(Constants.KEY_CODE) == Constants.TWO_ZERO_ZERO) { // Authentication optional
             cb_skip_auth.visibility = View.VISIBLE
@@ -157,8 +157,8 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
 
         auth_progress_bar.smoothToHide()
 
-        startActivity<DashboardActivity>()
-        activity.finish()
+        activity!!.startActivity<DashboardActivity>()
+        activity!!.finish()
 
     }
 
