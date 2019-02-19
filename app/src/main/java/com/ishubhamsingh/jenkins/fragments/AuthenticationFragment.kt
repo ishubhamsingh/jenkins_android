@@ -61,6 +61,14 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
             cb_skip_auth.visibility = View.GONE
         }
 
+        bt_back.setOnClickListener {
+            val fragment: Fragment = InstanceSetupFragment()
+            fragment.arguments = bundle
+            val ft = fragmentManager!!.beginTransaction()
+            ft.replace(R.id.fragment_frame, fragment)
+            ft.commit()
+        }
+
         bt_start.setOnClickListener {
 
             hideError()
@@ -92,6 +100,9 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
 
     private fun authenticate() {
 
+        bt_start.visibility = View.GONE
+        bt_back.visibility = View.GONE
+
         val requestInterface = Retrofit.Builder()
                 .baseUrl(bundle.getString(Constants.KEY_URL))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
@@ -116,6 +127,8 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
         } else if (code == Constants.FOUR_ZERO_ONE) {
 
             showError(getString(R.string.invalid_credentials))
+            bt_start.visibility = View.VISIBLE
+            bt_back.visibility = View.VISIBLE
             auth_progress_bar.smoothToHide()
 
         }
@@ -126,6 +139,8 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
     private fun handleError(error:Throwable) {
 
         info(error.localizedMessage)
+        bt_start.visibility = View.VISIBLE
+        bt_back.visibility = View.VISIBLE
         auth_progress_bar.smoothToHide()
 
     }

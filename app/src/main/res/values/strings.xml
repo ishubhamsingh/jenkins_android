@@ -36,5 +36,6 @@
     <string name="unstable_jobs">Unstable Jobs: %s</string>
     <string name="aborted_jobs">Aborted Jobs: %s</string>
     <string name="retry">Retry</string>
+    <string name="go_back">Go Back</string>
 
 </resources>

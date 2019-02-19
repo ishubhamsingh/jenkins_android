@@ -87,9 +87,21 @@
         android:background="@drawable/button_background"
         android:layout_centerHorizontal="true"
         android:text="@string/start"
-        android:layout_marginTop="96dp"
+        android:layout_marginTop="48dp"
         android:textColor="@color/secondaryColor"
         android:layout_below="@+id/layout_form"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bt_back"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_background_accent"
+        android:layout_centerHorizontal="true"
+        android:text="@string/go_back"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
+        android:textColor="@color/secondaryTextColor"
+        android:layout_below="@+id/bt_start"/>
 
     <com.wang.avi.AVLoadingIndicatorView
         android:id="@+id/auth_progress_bar"
@@ -97,7 +109,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="24dp"
-        android:layout_below="@id/bt_start"
+        android:layout_below="@id/bt_back"
         android:visibility="gone"
         app:indicatorName="BallPulseSyncIndicator"
         app:indicatorColor="@color/secondaryColor"
