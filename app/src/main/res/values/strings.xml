@@ -5,6 +5,7 @@
     <string name="setup_desc">Please enter the details of your jenkins setup. You can include port in url field.</string>
     <string name="url_ex">Ex:- http://jenkins.example.com:8080</string>
     <string name="name">Name</string>
+    <string name="instance_name">Instance Name</string>
     <string name="url">URL</string>
     <string name="proceed">Proceed</string>
     <string name="error_empty">Fields are empty</string>

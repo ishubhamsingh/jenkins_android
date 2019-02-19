@@ -22,7 +22,7 @@
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
             android:layout_marginTop="32dp"
-            android:text="@string/name"/>
+            android:text="@string/instance_name"/>
 
         <EditText
             android:id="@+id/et_name"
