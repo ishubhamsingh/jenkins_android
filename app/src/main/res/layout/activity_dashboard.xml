@@ -15,7 +15,8 @@
         <ImageView
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:scaleType="centerCrop"
+            android:scaleType="fitEnd"
+            android:src="@drawable/ic_dashboard_header"
              />
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
