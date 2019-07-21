@@ -4,113 +4,118 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.ishubhamsingh.jenkins.Constants
 import com.ishubhamsingh.jenkins.R
-import com.ishubhamsingh.jenkins.interfaces.RequestInterface
+import com.ishubhamsingh.jenkins.activities.SetupActivity
+import com.ishubhamsingh.jenkins.core.exception.Failure
+import com.ishubhamsingh.jenkins.core.extension.observe
+import com.ishubhamsingh.jenkins.core.extension.viewModel
+import com.ishubhamsingh.jenkins.core.viewmodel.ViewModelFactory
+import com.ishubhamsingh.jenkins.data.Preferences
+import com.ishubhamsingh.jenkins.databinding.FragmentInstanceSetupBinding
 import com.ishubhamsingh.jenkins.models.Home
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_setup.*
-import kotlinx.android.synthetic.main.fragment_instance_setup.*
+import dagger.android.support.AndroidSupportInjection
+import okhttp3.Headers
+import okhttp3.Response
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.Result
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
 import java.net.URL
+import javax.inject.Inject
 
 
 class InstanceSetupFragment : Fragment(), AnkoLogger {
 
-    private lateinit var mCompositeDisposable: CompositeDisposable
+    private lateinit var mBinding: FragmentInstanceSetupBinding
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    lateinit var viewModel: SetupViewmodel
+
+    @Inject
+    lateinit var preferences: Preferences
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_instance_setup, container, false)
+        AndroidSupportInjection.inject(this)
+
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_instance_setup, container, false)
+
+        viewModel = viewModel(viewModelFactory) {
+            observe(jenkinsInfoData, ::handleResponse)
+            observe(failure, ::handleError)
+        }
+        return mBinding.root
 
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mCompositeDisposable = CompositeDisposable()
+        (activity as SetupActivity).mBinding.tvTitle.text = getString(R.string.setup)
+        (activity as SetupActivity).mBinding.tvDesc.text = getString(R.string.setup_desc)
 
-        activity!!.tv_title.text = getString(R.string.setup)
-        activity!!.tv_desc.text = getString(R.string.setup_desc)
-
-        bt_proceed.setOnClickListener {
+        mBinding.btProceed.setOnClickListener {
 
             hideError()
 
-            setupProceed(et_name.text.toString(), et_url.text.toString())
+            setupProceed(mBinding.etName.text.toString(), mBinding.etUrl.text.toString())
         }
     }
 
 
     private fun setupProceed(name:String, url:String){
 
-        progress_bar.smoothToShow()
+        mBinding.progressBar.smoothToShow()
 
 
-        if(!name.isEmpty() && !url.isEmpty()){
+        if(name.isNotEmpty() && url.isNotEmpty()){
 
             if(isValid(url)){
-
-                val requestInterface = Retrofit.Builder()
-                        .baseUrl(url)
-                        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build().create(RequestInterface::class.java)
-
-                mCompositeDisposable.add(requestInterface.getResult()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe(this::handleResponse, this::handleError))
+                viewModel.getHomeResult(url)
 
             } else {
 
                 showError(getString(R.string.error_invalid_url))
-                progress_bar.smoothToHide()
+                mBinding.progressBar.smoothToHide()
 
             }
 
         } else {
 
             showError(getString(R.string.error_empty))
-            progress_bar.smoothToHide()
+            mBinding.progressBar.smoothToHide()
 
         }
 
     }
 
-    private fun handleResponse(result: Result<Home>) {
+    private fun handleResponse(result: Pair<Int, Headers>?) {
 
-        val code:Int = result.response()!!.code()
-        val jenkinsVersion = result.response()!!.headers().get("X-Jenkins")
+        val code:Int = result?.first ?: 0
+        val jenkinsVersion = result?.second?.get("X-Jenkins")
         if (jenkinsVersion != null) {
 
-            gotToAuthentication(code,jenkinsVersion,et_name.text.toString(),et_url.text.toString())
+            goToAuthentication(code,jenkinsVersion,mBinding.etName.text.toString(),mBinding.etUrl.text.toString())
 
         } else {
             showError(getString(R.string.invalid_jenkins_instance))
-            progress_bar.smoothToHide()
+            mBinding.progressBar.smoothToHide()
         }
 
     }
 
-    private fun handleError(error:Throwable) {
-
+    private fun handleError(failure: Failure?) {
+        preferences.clearPreferences()
         showError(getString(R.string.error_invalid_url))
-        progress_bar.smoothToHide()
+        mBinding.progressBar.smoothToHide()
 
     }
 
-    private fun gotToAuthentication(code:Int,jenkinsVersion:String,name: String,url: String) {
+    private fun goToAuthentication(code:Int,jenkinsVersion:String,name: String,url: String) {
 
         val bundle = Bundle()
         bundle.putString(Constants.KEY_JENKINS_VERSION,jenkinsVersion)
@@ -118,7 +123,7 @@ class InstanceSetupFragment : Fragment(), AnkoLogger {
         bundle.putString(Constants.KEY_NAME,name)
         bundle.putString(Constants.KEY_URL,url)
 
-        progress_bar.smoothToHide()
+        mBinding.progressBar.smoothToHide()
 
         val fragment: Fragment = AuthenticationFragment()
         fragment.arguments = bundle
@@ -130,19 +135,14 @@ class InstanceSetupFragment : Fragment(), AnkoLogger {
 
     private fun showError(errorMsg:String) {
 
-        tv_error.text=errorMsg
-        tv_error.visibility = View.VISIBLE
+        mBinding.tvError.text=errorMsg
+        mBinding.tvError.visibility = View.VISIBLE
 
     }
 
     private fun hideError() {
-        tv_error.text=""
-        tv_error.visibility = View.GONE
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mCompositeDisposable.clear()
+        mBinding.tvError.text=""
+        mBinding.tvError.visibility = View.GONE
     }
 
     private fun isValid(url: String): Boolean {
@@ -154,6 +154,11 @@ class InstanceSetupFragment : Fragment(), AnkoLogger {
             info("1"+e.message)
             false
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.onDestroy()
     }
 
 

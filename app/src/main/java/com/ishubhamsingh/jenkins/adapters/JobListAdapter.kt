@@ -12,9 +12,7 @@ import com.ishubhamsingh.jenkins.R
 import com.ishubhamsingh.jenkins.models.Job
 import com.ishubhamsingh.jenkins.utils.JobHelper
 
-class JobListAdapter(private val job: ArrayList<Job>?,val context: Context) : RecyclerView.Adapter<JobListAdapter.ViewHolder>() {
-
-    private var util = JobHelper()
+class JobListAdapter(private val job: ArrayList<Job>,val context: Context) : RecyclerView.Adapter<JobListAdapter.ViewHolder>() {
 
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
@@ -23,14 +21,14 @@ class JobListAdapter(private val job: ArrayList<Job>?,val context: Context) : Re
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
-        viewHolder.jobTitle.text = job!![i].name
-        viewHolder.jobIcon.setImageResource(util.getCardIcon(job[i].color))
-        viewHolder.jobCard.setCardBackgroundColor(util.getCardColor(job[i].color,context))
+        viewHolder.jobTitle.text = job[i].name
+        viewHolder.jobIcon.setImageResource(JobHelper.getCardIcon(job[i].color))
+        viewHolder.jobCard.setCardBackgroundColor(JobHelper.getCardColor(job[i].color,context))
 
     }
 
     override fun getItemCount(): Int {
-        return job!!.size
+        return job.size
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

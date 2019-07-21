@@ -4,81 +4,72 @@ import android.content.Context
 import androidx.core.content.ContextCompat
 import com.ishubhamsingh.jenkins.R
 
-class JobHelper {
+object JobHelper {
 
     fun getCardColor(color:String?,context:Context):Int {
-        var cardColor:Int = ContextCompat.getColor(context, R.color.green)
 
-        when(color){
+       return when(color){
             "red" -> {
-                cardColor = ContextCompat.getColor(context, R.color.red)
+                ContextCompat.getColor(context, R.color.red)
             }
 
             "blue" -> {
-                cardColor = ContextCompat.getColor(context, R.color.green)
+                ContextCompat.getColor(context, R.color.green)
             }
 
             "yellow" -> {
-               cardColor = ContextCompat.getColor(context, R.color.primaryLightColor)
+               ContextCompat.getColor(context, R.color.primaryLightColor)
 
             }
 
-            "aborted" -> {
-                cardColor = ContextCompat.getColor(context, R.color.secondaryColor)
+            "aborted", "notbuilt" -> {
+                ContextCompat.getColor(context, R.color.secondaryColor)
 
-            }
-
-            "notbuilt" -> {
-
-                cardColor = ContextCompat.getColor(context, R.color.secondaryColor)
             }
 
             "red_anime" -> {
-                cardColor = ContextCompat.getColor(context, R.color.red)
+                ContextCompat.getColor(context, R.color.red)
+            }
+
+            else -> {
+                ContextCompat.getColor(context, R.color.green)
             }
         }
-
-        return cardColor
 
     }
 
     fun getCardIcon(color: String?):Int {
 
-        var cardIcon = R.drawable.ic_running
-
-        when(color){
+        return when(color){
             "red" -> {
-                cardIcon = R.drawable.ic_cross
+                 R.drawable.ic_cross
             }
 
             "blue" -> {
 
-                cardIcon =   R.drawable.ic_tick
+                R.drawable.ic_tick
             }
 
             "yellow" -> {
 
-                cardIcon =  R.drawable.ic_unstable_tri
+                R.drawable.ic_unstable_tri
 
             }
 
-            "aborted" -> {
+            "aborted","notbuilt" -> {
 
-                cardIcon =  R.drawable.ic_aborted
-            }
-
-            "notbuilt" -> {
-                cardIcon =  R.drawable.ic_aborted
+                R.drawable.ic_aborted
             }
 
             "red_anime" -> {
-                cardIcon =  R.drawable.ic_running
+                R.drawable.ic_running
+            }
+
+            else -> {
+                R.drawable.ic_running
             }
 
         }
-
-
-        return cardIcon
 
     }
 }

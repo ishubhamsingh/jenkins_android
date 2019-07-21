@@ -1,57 +1,57 @@
 package com.ishubhamsingh.jenkins.activities
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.ishubhamsingh.jenkins.Constants
 import com.ishubhamsingh.jenkins.R
 import com.ishubhamsingh.jenkins.adapters.JobListAdapter
-import com.ishubhamsingh.jenkins.interfaces.RequestInterface
+import com.ishubhamsingh.jenkins.core.exception.Failure
+import com.ishubhamsingh.jenkins.core.extension.failure
+import com.ishubhamsingh.jenkins.core.extension.observe
+import com.ishubhamsingh.jenkins.core.extension.viewModel
+import com.ishubhamsingh.jenkins.core.viewmodel.ViewModelFactory
+import com.ishubhamsingh.jenkins.databinding.ActivityJobslistBinding
 import com.ishubhamsingh.jenkins.models.Home
 import com.ishubhamsingh.jenkins.models.Job
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_jobslist.*
+import com.ishubhamsingh.jenkins.viewmodels.JobListViewModel
+import dagger.android.AndroidInjection
+import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.info
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.Result
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
-import uk.co.chrisjenx.calligraphy.CalligraphyConfig
-import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper
-import java.lang.Thread.sleep
+import javax.inject.Inject
 
 class JobsListActivity: AppCompatActivity(),AnkoLogger {
 
-    private lateinit var prefJenkins: SharedPreferences
-    private lateinit var prefAccount: SharedPreferences
-    private lateinit var mCompositeDisposable: CompositeDisposable
+    private lateinit var mBinding: ActivityJobslistBinding
+
     private var data:ArrayList<Job>? = null
     private lateinit var adapter: JobListAdapter
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    lateinit var viewModel: JobListViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_jobslist)
+        AndroidInjection.inject(this)
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_jobslist)
 
-        CalligraphyConfig.initDefault(CalligraphyConfig.Builder()
-                .setDefaultFontPath("fonts/Rubik-Regular.ttf")
-                .setFontAttrId(R.attr.fontPath)
-                .build()
-        )
+        setSupportActionBar(mBinding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = getString(R.string.jobs)
 
-        toolbar.title = getString(R.string.jobs)
-
-        mCompositeDisposable = CompositeDisposable()
-        prefAccount=getSharedPreferences(Constants.PREFS_ACCOUNT, Context.MODE_PRIVATE)
-        prefJenkins=getSharedPreferences(Constants.PREFS_JENKINS_DETAILS, Context.MODE_PRIVATE)
-
-        bt_retry.setOnClickListener{
+        mBinding.btRetry.setOnClickListener{
             fetchList()
+        }
+
+
+        viewModel = viewModel(viewModelFactory) {
+            observe(homeData, ::handleResponse)
+            failure(failure, ::handleError)
         }
 
         fetchList()
@@ -59,63 +59,51 @@ class JobsListActivity: AppCompatActivity(),AnkoLogger {
 
     private fun fetchList() {
 
-        error_view.visibility = View.GONE
-        joblist_progress_bar.smoothToShow()
+        mBinding.errorView.visibility = View.GONE
+        mBinding.joblistProgressBar.smoothToShow()
 
-        val requestInterface = Retrofit.Builder()
-                .baseUrl(prefJenkins.getString(Constants.KEY_URL,"url"))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build().create(RequestInterface::class.java)
-
-        mCompositeDisposable.add(requestInterface.getResultAuth(prefAccount.getString(Constants.KEY_AUTH_KEY,"default"))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(this::handleResponse, this::handleError))
-
+        viewModel.fetchJobsList()
 
     }
 
-    private fun handleResponse(result: Result<Home>) {
+    private fun handleResponse(result: Home?) {
 
-        data = result.response()!!.body()!!.jobs
-        val totalJobs:Int = data!!.size
-        val runningJobs:Int = data!!.filter { job -> job.color == "blue_anime" || job.color == "red_anime" }.size
-        val successfulJobs:Int = data!!.filter { job -> job.color == "blue" }.size
-        val failedJobs:Int = data!!.filter { job -> job.color == "red"}.size
-        val unstableJobs:Int = data!!.filter { job -> job.color == "yellow" }.size
-        val abortedJobs:Int = data!!.filter { job -> job.color == "aborted" }.size
-        tv_total_jobs.text = getString(R.string.total_jobs ,totalJobs.toString())
-        tv_running_jobs.text = getString(R.string.running_jobs ,runningJobs.toString())
-        tv_success_jobs.text = getString(R.string.successful_jobs, successfulJobs.toString())
-        tv_failed_jobs.text = getString(R.string.failed_jobs, failedJobs.toString())
-        tv_unstable_jobs.text = getString(R.string.unstable_jobs, unstableJobs.toString())
-        tv_aborted_jobs.text = getString(R.string.aborted_jobs, abortedJobs.toString())
-        adapter = JobListAdapter(data,this)
-        rv_joblist.setHasFixedSize(true)
-        val layoutManager = LinearLayoutManager(this)
-        rv_joblist.layoutManager = layoutManager
-        joblist_progress_bar.smoothToHide()
-        rv_joblist.visibility = View.VISIBLE
-        jobs_info_card.visibility = View.VISIBLE
-        rv_joblist.adapter = adapter
+        data = result?.jobs
 
+        data?.let {
+            mBinding.tvTotalJobs.text = getString(R.string.total_jobs ,it.size.toString())
+            mBinding.tvRunningJobs.text = getString(R.string.running_jobs ,it.filter { job -> job.color == "blue_anime" || job.color == "red_anime" }.size.toString())
+            mBinding.tvSuccessJobs.text = getString(R.string.successful_jobs, it.filter { job -> job.color == "blue" }.size.toString())
+            mBinding.tvFailedJobs.text = getString(R.string.failed_jobs, it.filter { job -> job.color == "red"}.size.toString())
+            mBinding.tvUnstableJobs.text = getString(R.string.unstable_jobs, it.filter { job -> job.color == "yellow" }.size.toString())
+            mBinding.tvAbortedJobs.text = getString(R.string.aborted_jobs, it.filter { job -> job.color == "aborted" }.size.toString())
+            adapter = JobListAdapter(it,this)
+            mBinding.rvJoblist.setHasFixedSize(true)
+            val layoutManager = LinearLayoutManager(this)
+            mBinding.rvJoblist.layoutManager = layoutManager
+            mBinding.rvJoblist.visibility = View.VISIBLE
+            mBinding.jobsInfoCard.visibility = View.VISIBLE
+            mBinding.rvJoblist.adapter = adapter
+        }
 
+        mBinding.joblistProgressBar.smoothToHide()
     }
 
-    private fun handleError(error:Throwable) {
-        joblist_progress_bar.smoothToHide()
-        error_view.visibility = View.VISIBLE
+    private fun handleError(failure: Failure?) {
+        mBinding.joblistProgressBar.smoothToHide()
+        mBinding.errorView.visibility = View.VISIBLE
 
 
     }
 
     override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase))
+        super.attachBaseContext(ViewPumpContextWrapper.wrap(newBase))
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        mCompositeDisposable.clear()
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> onBackPressed()
+        }
+        return super.onOptionsItemSelected(item)
     }
 }

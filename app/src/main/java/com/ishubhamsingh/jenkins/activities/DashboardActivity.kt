@@ -1,101 +1,91 @@
 package com.ishubhamsingh.jenkins.activities
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
 import com.ishubhamsingh.jenkins.Constants
 import com.ishubhamsingh.jenkins.R
-import io.reactivex.disposables.CompositeDisposable
-import kotlinx.android.synthetic.main.activity_dashboard.*
+import com.ishubhamsingh.jenkins.data.Preferences
+import com.ishubhamsingh.jenkins.databinding.ActivityDashboardBinding
+import dagger.android.AndroidInjection
+import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.startActivity
-import uk.co.chrisjenx.calligraphy.CalligraphyConfig
-import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper
-
+import javax.inject.Inject
 
 
 class DashboardActivity: AppCompatActivity() ,AnkoLogger{
 
-    private lateinit var prefJenkins: SharedPreferences
-    private lateinit var prefAccount: SharedPreferences
-    private lateinit var mCompositeDisposable: CompositeDisposable
+    private lateinit var mBinding: ActivityDashboardBinding
+
+    @Inject
+    lateinit var preferences: Preferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_dashboard)
+        AndroidInjection.inject(this)
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_dashboard)
 
-        CalligraphyConfig.initDefault(CalligraphyConfig.Builder()
-                .setDefaultFontPath("fonts/Rubik-Regular.ttf")
-                .setFontAttrId(R.attr.fontPath)
-                .build()
-        )
-
-        mCompositeDisposable = CompositeDisposable()
-        prefAccount=getSharedPreferences(Constants.PREFS_ACCOUNT,Context.MODE_PRIVATE)
-        prefJenkins=getSharedPreferences(Constants.PREFS_JENKINS_DETAILS,Context.MODE_PRIVATE)
-
-        toolbar.title = getString(R.string.hi,prefAccount.getString(Constants.KEY_USERNAME,"Anonymous"))
-        toolbar.subtitle = getString(R.string.welcome,prefJenkins.getString(Constants.KEY_NAME,"jenkins"))
-
-        tv_info_version.text = prefJenkins.getString(Constants.KEY_JENKINS_VERSION,"Unknown")
-        tv_info_url.text = prefJenkins.getString(Constants.KEY_URL,"Unknown")
+        mBinding.toolbar.title = getString(R.string.hi,preferences.fetchString(Constants.KEY_USERNAME))
 
 
-        if(prefAccount.getBoolean(Constants.KEY_IS_AUTHORISED, false)) {
+        mBinding.tvInfoVersion.text = preferences.fetchString(Constants.KEY_JENKINS_VERSION)
+        mBinding.tvInfoUrl.text = preferences.fetchString(Constants.KEY_URL)
 
 
-        } else {
+        if(!preferences.fetchBoolean(Constants.KEY_IS_AUTHORISED)) {
 
-            fab_create.isEnabled = false
-            fab_create.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext,R.color.grey2))
-            fab_restart.isEnabled = false
-            fab_restart.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext,R.color.grey2))
+            mBinding.fabCreate.isEnabled = false
+            mBinding.fabCreate.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext,R.color.grey2))
+            mBinding.fabRestart.isEnabled = false
+            mBinding.fabRestart.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext,R.color.grey2))
 
         }
 
         setButtons()
 
+        mBinding.toolbar.subtitle = getString(R.string.welcome,preferences.fetchString(Constants.KEY_NAME))
+
     }
 
     private fun setButtons(){
 
-        fab_jobs.setOnClickListener {
+        mBinding.fabJobs.setOnClickListener {
 
             startActivity<JobsListActivity>()
 
         }
 
-        fab_views.setOnClickListener {
+        mBinding.fabViews.setOnClickListener {
 
         }
 
-        fab_queue.setOnClickListener {
+        mBinding.fabQueue.setOnClickListener {
 
         }
 
-        fab_nodes.setOnClickListener {
+        mBinding.fabNodes.setOnClickListener {
 
         }
 
-        fab_stats.setOnClickListener {
+        mBinding.fabStats.setOnClickListener {
 
         }
 
-        fab_create.setOnClickListener {
+        mBinding.fabCreate.setOnClickListener {
 
         }
 
-        fab_restart.setOnClickListener {
+        mBinding.fabRestart.setOnClickListener {
 
         }
 
-        fab_logout.setOnClickListener {
+        mBinding.fabLogout.setOnClickListener {
 
-            prefAccount.edit().clear().apply()
-            prefJenkins.edit().clear().apply()
+            preferences.clearPreferences()
             startActivity<SetupActivity>()
             finish()
 
@@ -104,12 +94,7 @@ class DashboardActivity: AppCompatActivity() ,AnkoLogger{
     }
 
     override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase))
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mCompositeDisposable.clear()
+        super.attachBaseContext(ViewPumpContextWrapper.wrap(newBase))
     }
 
 }

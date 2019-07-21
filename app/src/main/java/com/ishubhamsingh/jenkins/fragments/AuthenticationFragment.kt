@@ -1,38 +1,44 @@
 package com.ishubhamsingh.jenkins.fragments
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.ishubhamsingh.jenkins.Constants
 import com.ishubhamsingh.jenkins.R
 import com.ishubhamsingh.jenkins.activities.DashboardActivity
-import com.ishubhamsingh.jenkins.interfaces.RequestInterface
-import com.ishubhamsingh.jenkins.models.Home
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_setup.*
+import com.ishubhamsingh.jenkins.activities.SetupActivity
+import com.ishubhamsingh.jenkins.core.exception.Failure
+import com.ishubhamsingh.jenkins.core.extension.observe
+import com.ishubhamsingh.jenkins.core.extension.viewModel
+import com.ishubhamsingh.jenkins.core.viewmodel.ViewModelFactory
+import com.ishubhamsingh.jenkins.data.Preferences
+import com.ishubhamsingh.jenkins.databinding.FragmentAuthenticationBinding
+import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.fragment_authentication.*
+import okhttp3.Headers
+import okhttp3.Response
 import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.info
 import org.jetbrains.anko.startActivity
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.Result
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.UnsupportedEncodingException
+import javax.inject.Inject
 
 
 class AuthenticationFragment : Fragment(), AnkoLogger {
 
-    private lateinit var prefJenkins: SharedPreferences
-    private lateinit var prefAccount: SharedPreferences
-    private lateinit var mCompositeDisposable: CompositeDisposable
+    private lateinit var mBinding: FragmentAuthenticationBinding
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    lateinit var viewModel: SetupViewmodel
+
+    @Inject
+    lateinit var preferences: Preferences
+
     private lateinit var bundle: Bundle
     private lateinit var username: String
     private lateinit var password: String
@@ -40,57 +46,64 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_authentication, container, false)
+        AndroidSupportInjection.inject(this)
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_authentication, container, false)
+
+        viewModel = viewModel(viewModelFactory) {
+            observe(jenkinsInfoData, ::handleResponse)
+            observe(failure, ::handleError)
+        }
+
+        return mBinding.root
 
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mCompositeDisposable = CompositeDisposable()
-        prefAccount=activity!!.getSharedPreferences(Constants.PREFS_ACCOUNT, Context.MODE_PRIVATE)
-        prefJenkins=activity!!.getSharedPreferences(Constants.PREFS_JENKINS_DETAILS,Context.MODE_PRIVATE)
-        bundle = this.arguments!!
+        this.arguments?.let {
+            bundle = it
+        }
 
-        activity!!.tv_desc.text = getString(R.string.jenkins_version_desc,bundle.getString(Constants.KEY_JENKINS_VERSION)) + "\n" + getString(R.string.auth_desc)
+        (activity as SetupActivity).mBinding.tvDesc.text = getString(R.string.jenkins_version_desc,bundle.getString(Constants.KEY_JENKINS_VERSION)) + "\n" + getString(R.string.auth_desc)
 
         if(bundle.getInt(Constants.KEY_CODE) == Constants.TWO_ZERO_ZERO) { // Authentication optional
-            cb_skip_auth.visibility = View.VISIBLE
+            mBinding.cbSkipAuth.visibility = View.VISIBLE
         } else if (bundle.getInt(Constants.KEY_CODE) == Constants.FOUR_ZERO_THREE) { // Authentication required
-            cb_skip_auth.isChecked = false
-            cb_skip_auth.visibility = View.GONE
+            mBinding.cbSkipAuth.isChecked = false
+            mBinding.cbSkipAuth.visibility = View.GONE
         }
 
-        bt_back.setOnClickListener {
+        mBinding.btBack.setOnClickListener {
             val fragment: Fragment = InstanceSetupFragment()
             fragment.arguments = bundle
-            val ft = fragmentManager!!.beginTransaction()
-            ft.replace(R.id.fragment_frame, fragment)
-            ft.commit()
+            val ft = fragmentManager?.beginTransaction()
+            ft?.replace(R.id.fragment_frame, fragment)
+            ft?.commit()
         }
 
-        bt_start.setOnClickListener {
+        mBinding.btStart.setOnClickListener {
 
             hideError()
 
-            auth_progress_bar.smoothToShow()
+            mBinding.authProgressBar.smoothToShow()
 
-            if (cb_skip_auth.isChecked) {
+            if (mBinding.cbSkipAuth.isChecked) {
 
                 gotoDashboard(false)
 
             } else {
 
-                if (!et_username.text.toString().isEmpty() && !et_password.text.toString().isEmpty()) {
-                    username = et_username.text.toString()
-                    password = et_password.text.toString()
+                if (mBinding.etUsername.text.toString().isNotEmpty() && mBinding.etPassword.text.toString().isNotEmpty()) {
+                    username = mBinding.etUsername.text.toString()
+                    password = mBinding.etPassword.text.toString()
 
                     authenticate()
 
                 } else {
 
                     showError(getString(R.string.error_empty))
-                    auth_progress_bar.smoothToHide()
+                    mBinding.authProgressBar.smoothToHide()
 
                 }
             }
@@ -100,25 +113,17 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
 
     private fun authenticate() {
 
-        bt_start.visibility = View.GONE
-        bt_back.visibility = View.GONE
+        mBinding.btStart.visibility = View.GONE
+        mBinding.btBack.visibility = View.GONE
 
-        val requestInterface = Retrofit.Builder()
-                .baseUrl(bundle.getString(Constants.KEY_URL))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build().create(RequestInterface::class.java)
-
-        mCompositeDisposable.add(requestInterface.getResultAuth(getAuthToken())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(this::handleResponse, this::handleError))
-
+        preferences.storeString(Constants.KEY_AUTH_KEY, getAuthToken())
+        preferences.storeBoolean(Constants.KEY_IS_AUTHORISED, true)
+        viewModel.getHomeResult(bundle.getString(Constants.KEY_URL,""))
     }
 
-    private fun handleResponse(result: Result<Home>) {
+    private fun handleResponse(result: Pair<Int, Headers>?) {
 
-        val code:Int = result.response()!!.code()
+        val code:Int = result?.first ?: 0
         if (code == Constants.TWO_ZERO_ZERO) {
 
             gotoDashboard(true)
@@ -127,66 +132,58 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
         } else if (code == Constants.FOUR_ZERO_ONE) {
 
             showError(getString(R.string.invalid_credentials))
-            bt_start.visibility = View.VISIBLE
-            bt_back.visibility = View.VISIBLE
-            auth_progress_bar.smoothToHide()
+            mBinding.btStart.visibility = View.VISIBLE
+            mBinding.btBack.visibility = View.VISIBLE
+            mBinding.authProgressBar.smoothToHide()
 
         }
 
 
     }
 
-    private fun handleError(error:Throwable) {
-
-        info(error.localizedMessage)
-        bt_start.visibility = View.VISIBLE
-        bt_back.visibility = View.VISIBLE
-        auth_progress_bar.smoothToHide()
+    private fun handleError(failure: Failure?) {
+        mBinding.btStart.visibility = View.VISIBLE
+        mBinding.btBack.visibility = View.VISIBLE
+        mBinding.authProgressBar.smoothToHide()
 
     }
 
     private fun gotoDashboard(isAuthorised:Boolean) {
 
-        prefJenkins.edit()
-                .putString(Constants.KEY_NAME, bundle.getString(Constants.KEY_NAME))
-                .putString(Constants.KEY_URL,bundle.getString(Constants.KEY_URL))
-                .putString(Constants.KEY_JENKINS_VERSION,bundle.getString(Constants.KEY_JENKINS_VERSION))
-                .apply()
+        preferences.storeString(Constants.KEY_NAME, bundle.getString(Constants.KEY_NAME) ?: "--")
+        preferences.storeString(Constants.KEY_URL,bundle.getString(Constants.KEY_URL) ?: "--")
+        preferences.storeString(Constants.KEY_JENKINS_VERSION,bundle.getString(Constants.KEY_JENKINS_VERSION) ?: "--")
 
         if (isAuthorised) {
-            prefAccount.edit()
-                    .putString(Constants.KEY_USERNAME, et_username.text.toString())
-                    .putString(Constants.KEY_AUTH_KEY, getAuthToken())
-                    .putBoolean(Constants.KEY_IS_AUTHORISED, true)
-                    .putBoolean(Constants.ACCOUNT_SETUP_DONE, true)
-                    .apply()
+            preferences.storeString(Constants.KEY_USERNAME, mBinding.etUsername.text.toString())
+            preferences.storeString(Constants.KEY_AUTH_KEY, getAuthToken())
+            preferences.storeBoolean(Constants.KEY_IS_AUTHORISED, true)
+            preferences.storeBoolean(Constants.ACCOUNT_SETUP_DONE, true)
         } else {
 
-            prefAccount.edit()
-                    .putString(Constants.KEY_USERNAME, getString(R.string.anonymous))
-                    .putString(Constants.KEY_AUTH_KEY, null)
-                    .putBoolean(Constants.KEY_IS_AUTHORISED, false)
-                    .putBoolean(Constants.ACCOUNT_SETUP_DONE, true)
-                    .apply()
+            preferences.storeString(Constants.KEY_USERNAME, getString(R.string.anonymous))
+            preferences.storeString(Constants.KEY_AUTH_KEY, null)
+            preferences.storeBoolean(Constants.KEY_IS_AUTHORISED, false)
+            preferences.storeBoolean(Constants.ACCOUNT_SETUP_DONE, true)
         }
 
-        auth_progress_bar.smoothToHide()
+        mBinding.authProgressBar.smoothToHide()
 
-        activity!!.startActivity<DashboardActivity>()
-        activity!!.finish()
+        activity?.startActivity<DashboardActivity>()
+        activity?.finish()
 
     }
 
     private fun showError(errorMsg:String) {
 
-        tv_auth_error.text=errorMsg
-        tv_auth_error.visibility = View.VISIBLE
+        mBinding.tvAuthError.text=errorMsg
+        mBinding.tvAuthError.visibility = View.VISIBLE
 
     }
 
     private fun hideError() {
-        tv_auth_error.text=""
-        tv_auth_error.visibility = View.GONE
+        mBinding.tvAuthError.text=""
+        mBinding.tvAuthError.visibility = View.GONE
     }
 
     private fun getAuthToken(): String {
@@ -202,7 +199,6 @@ class AuthenticationFragment : Fragment(), AnkoLogger {
 
     override fun onDestroy() {
         super.onDestroy()
-        mCompositeDisposable.clear()
+        viewModel.onDestroy()
     }
-
 }
