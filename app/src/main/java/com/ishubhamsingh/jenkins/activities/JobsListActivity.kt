@@ -45,6 +45,12 @@ class JobsListActivity: AppCompatActivity(),AnkoLogger {
         supportActionBar?.title = getString(R.string.jobs)
 
         mBinding.btRetry.setOnClickListener{
+            onDataRefresh()
+            fetchList()
+        }
+
+        mBinding.swipeRefresh.setOnRefreshListener{
+            onDataRefresh()
             fetchList()
         }
 
@@ -66,6 +72,16 @@ class JobsListActivity: AppCompatActivity(),AnkoLogger {
 
     }
 
+    private fun onDataRefresh() {
+        mBinding.tvTotalJobs.text = getString(R.string.total_jobs ,"--")
+        mBinding.tvRunningJobs.text = getString(R.string.running_jobs ,"--")
+        mBinding.tvSuccessJobs.text = getString(R.string.successful_jobs, "--")
+        mBinding.tvFailedJobs.text = getString(R.string.failed_jobs, "--")
+        mBinding.tvUnstableJobs.text = getString(R.string.unstable_jobs, "--")
+        mBinding.tvAbortedJobs.text = getString(R.string.aborted_jobs, "--")
+        mBinding.rvJoblist.visibility = View.GONE
+    }
+
     private fun handleResponse(result: Home?) {
 
         data = result?.jobs
@@ -82,18 +98,22 @@ class JobsListActivity: AppCompatActivity(),AnkoLogger {
             val layoutManager = LinearLayoutManager(this)
             mBinding.rvJoblist.layoutManager = layoutManager
             mBinding.rvJoblist.visibility = View.VISIBLE
-            mBinding.jobsInfoCard.visibility = View.VISIBLE
             mBinding.rvJoblist.adapter = adapter
         }
 
-        mBinding.joblistProgressBar.smoothToHide()
+        hideProgress()
     }
 
     private fun handleError(failure: Failure?) {
-        mBinding.joblistProgressBar.smoothToHide()
+        hideProgress()
         mBinding.errorView.visibility = View.VISIBLE
 
 
+    }
+
+    private fun hideProgress() {
+        mBinding.joblistProgressBar.smoothToHide()
+        if(mBinding.swipeRefresh.isRefreshing) mBinding.swipeRefresh.isRefreshing = false
     }
 
     override fun attachBaseContext(newBase: Context) {
