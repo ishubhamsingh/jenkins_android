@@ -104,7 +104,7 @@ dependencies {
     //coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines"
-    implementation 'ru.gildor.coroutines:kotlin-coroutines-retrofit:1.0.0'
+    implementation 'ru.gildor.coroutines:kotlin-coroutines-retrofit:1.1.0'
 
     implementation 'io.github.inflationx:calligraphy3:3.1.1'
     implementation 'io.github.inflationx:viewpump:2.0.3'
