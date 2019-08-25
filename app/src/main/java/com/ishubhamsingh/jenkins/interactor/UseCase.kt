@@ -74,10 +74,10 @@ abstract class UseCase<out Type, in Params>() where Type : Any {
             else -> {
 
                 var errorBody = ErrorBody()
-                errorBody.code = response.response.code().toString()
-                errorBody.message = response.response.message()
+                errorBody.code = response.response.code.toString()
+                errorBody.message = response.response.message
 
-                val error = response.exception.response().errorBody()?.charStream()
+                val error = response.exception.response()?.errorBody()?.charStream()
 
                 if (error != null) {
                     try {

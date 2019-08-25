@@ -25,10 +25,10 @@ open class AuthRequestInterceptor(val preferences: Preferences) : Interceptor {
 
         val response = chain.proceed(newRequest)
 
-        val responseBodyString = response.body()?.string() ?:""
+        val responseBodyString = response.body?.string() ?:""
 
         return   response.newBuilder()
-            .body(ResponseBody.create(response.body()?.contentType(), responseBodyString))
+            .body(ResponseBody.create(response.body?.contentType(), responseBodyString))
             .build()
     }
 

@@ -1,14 +1,11 @@
 package com.ishubhamsingh.jenkins
 
-import android.app.Activity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.fragment.app.Fragment
 import androidx.multidex.MultiDexApplication
 import com.ishubhamsingh.jenkins.di.component.DaggerApplicationComponent
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasActivityInjector
-import dagger.android.support.HasSupportFragmentInjector
+import dagger.android.HasAndroidInjector
 import io.github.inflationx.calligraphy3.CalligraphyConfig
 import io.github.inflationx.calligraphy3.CalligraphyInterceptor
 import io.github.inflationx.viewpump.ViewPump
@@ -19,13 +16,10 @@ import javax.inject.Inject
  * Created by Shubham Singh on 14-07-2019.
  */
 
-class JenkinsApplication : MultiDexApplication(), HasActivityInjector , HasSupportFragmentInjector {
+class JenkinsApplication : MultiDexApplication(), HasAndroidInjector {
 
     @Inject
-    internal lateinit var activityDispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
-
-    @Inject
-    internal lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+    internal lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Any>
 
 
     override fun onCreate() {
@@ -51,9 +45,6 @@ class JenkinsApplication : MultiDexApplication(), HasActivityInjector , HasSuppo
 
     }
 
-    override fun activityInjector(): AndroidInjector<Activity> = activityDispatchingAndroidInjector
-
-    override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
-
+    override fun androidInjector(): AndroidInjector<Any> = dispatchingAndroidInjector
 
 }

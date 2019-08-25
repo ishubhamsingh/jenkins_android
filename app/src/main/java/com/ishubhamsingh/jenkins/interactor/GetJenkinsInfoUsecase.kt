@@ -22,7 +22,7 @@ class GetJenkinsInfoUsecase @Inject constructor(val preferences: Preferences) : 
         val result: Result<Home> = if(preferences.fetchBoolean(Constants.KEY_IS_AUTHORISED)) {jenkinsAuthApi.getJenkinsInstanceInfo("$url/api/json/").awaitResult() } else {jenkinsApi.getJenkinsInstanceInfo("$url/api/json/").awaitResult()}
         return when (result) {
             //Successful HTTP result
-            is Result.Ok -> Either.Right(Pair(result.response.code(), result.response.headers()))
+            is Result.Ok -> Either.Right(Pair(result.response.code, result.response.headers))
             // Any HTTP error
             is Result.Error -> Either.Left(getFailure(result))
             // Exception while request invocation
