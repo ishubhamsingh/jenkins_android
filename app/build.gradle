@@ -75,7 +75,7 @@ dependencies {
 
     implementation 'com.google.android.material:material:1.1.0-alpha10'
 
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.code.gson:gson:2.8.6'
 
     implementation "com.android.support:multidex:$multidex"
 
